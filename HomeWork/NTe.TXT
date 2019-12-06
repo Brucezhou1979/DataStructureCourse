@@ -1,0 +1,59 @@
+Status EnQueue(LinkQueue *Q, QElemType_L e, int di)	//di代表入队方向 
+{
+	QueuePtr p;
+	p = (QueuePtr)malloc(sizeof(QNode));					//队列满则无法入队 
+	if (!p) exit(OVERFLOW);
+	p->data = e;
+	if (di == 0)												//di=0从队头入队
+	{
+		p->next = (*Q).front->next;		(*Q).front->next = p;
+	}
+	if (di == 1) 												//di=1从队尾入队
+	{
+		p->next = (*Q).rear->next;		(*Q).rear->next = p;		(*Q).rear = p;
+	}
+	return OK;
+}
+/* 假设入口在左边，出口在右边，车厢读取顺序从右到左 */
+void Algo(char *En, char Con[])
+{
+	int i, j;
+	LinkQueue Q;
+	QElemType_L e;
+	InitQueue_L(&Q);						//初始化一个字符队列 
+	i = j = 0;
+	while (En[i])
+	{
+		if (En[i] == 'P')						//硬座直接开到合适的位置 
+		{
+			Con[j++] = 'L';					//L代表从入口直接开到出口 
+		}
+		if (En[i] == 'S')						//软卧从队头入队 
+		{
+			EnQueue(&Q, En[i], 0);
+			Con[j++] = 'E';
+		}
+		if (En[i] == 'H')						//硬卧从队尾入队
+		{
+			EnQueue(&Q, En[i], 1);
+			Con[j++] = 'A';
+		}
+		i++;
+	}
+	while (!QueueEmpty_L(Q))					//将队列中中软卧和硬卧出队 
+	{
+		DeQueue_L(&Q, &e); 	Con[j++] = 'D';
+	}
+	Con[j] = '\0'; 
+}
+int main(int argc, char *argv[])
+{
+	//（P代表硬座席，S代表软卧，H代表硬卧）
+	char En[5] = "PSHH";
+	char Ex[50], Con[50];
+	printf("生成调度序列...\n");
+	Algo(En, Con);
+	printf("调度序列为（E代表队头入队，A代表队尾入队，D代表队头出队）：\nCon = ");
+	printf("%s\n", Con);
+	return 0;
+}
